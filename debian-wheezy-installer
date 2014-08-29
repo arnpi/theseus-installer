@@ -72,5 +72,5 @@ case $doit in
   n|N) echo "exiting ..." && exit 0 ;; 
   *) echo "exiting ..." && exit 0 ;; 
 esac
-cd /var/www/html/html/
+cd /var/www/html/
 phantomjs --disk-cache=no angular-seo/angular-seo-server.js 8888 http://localhost/html
