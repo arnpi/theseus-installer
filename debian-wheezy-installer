@@ -1,0 +1,76 @@
+#!/bin/bash
+
+
+
+#ln -s /home/$username/projet/theseus/html/ /var/www/
+#ln -s /home/$username/projet/theseus/web_service/ /var/www/
+
+clear
+username=$USER
+echo "This script will install theseus project from https://github.com/ozshel/theseus.git into /home/$username/theseus directory\nSymlink will be create in your /var/www/html directory\nTested on Debian GNU/Linux jessie/sid apache2 default configuration"
+echo "su password will be asked"
+echo "your config:"
+cat /etc/issue
+
+cat /etc/debian_version
+read -p "Do that? [y,n]" doit 
+case $doit in  
+  y|Y) echo yes ;; 
+  n|N) echo "exiting ..." && exit 0 ;; 
+  *) echo "exiting ..." && exit 0 ;; 
+esac
+
+
+su -c "
+apt-get install apache2 php5 &&
+cd /home/$username/ &&
+rm -rf theseus &&
+git clone https://github.com/ozshel/theseus.git &&
+chown $username:$username theseus &&
+rm -f /var/www/html &&
+rm -f /var/www/web &&
+rm -f /var/www/web_service &&
+ln -s /home/$username/theseus/html/ /var/www/ &&
+ln -s /home/$username/theseus/web_service/web /var/www/ &&
+chown -R www-data:www-data /var/www/ &&
+chown -R $username:$username /home/$username/theseus/.git &&
+chmod -R 775 /home/$username/theseus/web_service/app/cache &&
+chmod -R 775 /home/$username/theseus/web_service/app/logs &&
+ls -al /var/www &&
+exit
+"
+echo "Theseus install end"
+
+
+read -p "Install phantomjs ? [y,n]" doit 
+case $doit in  
+  y|Y) echo yes ;; 
+  n|N) echo "exiting ..." && exit 0 ;; 
+  *) echo "exiting ..." && exit 0 ;; 
+esac
+
+rm -rf phantomjs-1.9.7-*
+wget "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-i686.tar.bz2"
+
+tar jxvf phantomjs-1.9.7-linux-i686.tar.bz2
+su -c "
+mv phantomjs-1.9.7-linux-i686 /usr/local/share/ &&
+rm -rf /usr/local/share/phantomjs &&
+rm -rf /usr/local/bin/phantomjs &&
+rm -rf /usr/bin/phantomjs &&
+ln -sf /usr/local/share/phantomjs-1.9.7-linux-i686/bin/phantomjs /usr/local/share/phantomjs &&
+ln -sf /usr/local/share/phantomjs-1.9.7-linux-i686/bin/phantomjs /usr/local/bin/phantomjs &&
+ln -sf /usr/local/share/phantomjs-1.9.7-linux-i686/bin/phantomjs /usr/bin/phantomjs
+"
+echo "phantomjs install end"
+
+echo "to start type:\ncd /var/www/html/\nphantomjs --disk-cache=no angular-seo/angular-seo-server.js 8888 http://localhost/html"
+echo "would you like start it now ?"
+read -p "Start phantomjs ? [y,n]" doit 
+case $doit in  
+  y|Y) echo yes ;; 
+  n|N) echo "exiting ..." && exit 0 ;; 
+  *) echo "exiting ..." && exit 0 ;; 
+esac
+cd /var/www/html/html/
+phantomjs --disk-cache=no angular-seo/angular-seo-server.js 8888 http://localhost/html
